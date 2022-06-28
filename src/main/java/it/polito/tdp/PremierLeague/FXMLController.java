@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.model.Team;
+import it.polito.tdp.PremierLeague.model.reporter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,7 +37,7 @@ public class FXMLController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbSquadra"
-    private ComboBox<?> cmbSquadra; // Value injected by FXMLLoader
+    private ComboBox<Team> cmbSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -48,17 +50,40 @@ public class FXMLController {
 
     @FXML
     void doClassifica(ActionEvent event) {
-
+    	if(cmbSquadra.getValue()!=null) {
+    		model.cercamigliori(cmbSquadra.getValue());
+    		txtResult.setText("migliori \n");
+    		for(String i:model.getOrdineMigliori().keySet()) {
+    			txtResult.appendText(i+"\n");
+    		}
+    		txtResult.appendText("\n peggiori \n");
+    		for(String i:model.getOrdinePeggiori().keySet()) {
+    			txtResult.appendText(i+"\n");
+    		}
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	model.creagrafo();
+    	txtResult.setText("grafo creato con archi: "+model.getNarchi()+" vertici: "+model.getNverici());
     }
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	if(!txtN.getText().equals("") && !txtX.getText().equals("")) {
+    		model.simula(Integer.parseInt(txtN.getText()),Integer.parseInt(txtX.getText()));
+    		txtResult.setText("reporter sotto soglia "+model.getContacritico()+"\n");
+    		txtResult.appendText("reporter medi per squadra \n");
+    		for(reporter r :model.getReporter()) {
+    			int n=0;
+    			for(int i=0;i<r.getListaRep().size();i++) {
+    				n=n+r.getListaRep().get(i);
+    			}
+    			txtResult.appendText(r.getT().getName()+" reported medi "+n/r.getListaRep().size()+"\n");
+    		}
+    	}
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -74,5 +99,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	cmbSquadra.getItems().addAll(model.squadre());
     }
 }
